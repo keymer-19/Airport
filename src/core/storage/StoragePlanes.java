@@ -5,29 +5,56 @@ import java.util.ArrayList;
 
 public class StoragePlanes implements Storage<Plane, String> {
 
+    private static StoragePlanes instance;
+    private ArrayList<Plane> planes;
+
+    private StoragePlanes() {
+        this.planes = new ArrayList<>();
+    }
+
+    public static StoragePlanes getInstance() {
+        if (instance == null) {
+            instance = new StoragePlanes();
+        }
+        return instance;
+    }
+
     @Override
     public void load() {
         throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
 
-    @Override
-    public boolean add(Plane type) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    public boolean add(Plane plane) {
+        for (Plane p : planes) {
+            if (p.getId().equals(plane.getId())) {
+                return false;
+            }
+        }
+
+        return planes.add(plane);
     }
 
-    @Override
     public boolean delete(String id) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        for (Plane p : planes) {
+            if (p.getId().equals(id)) {
+                return planes.remove(p);
+            }
+        }
+
+        return false;
     }
 
-    @Override
     public Plane get(String id) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        for (Plane p : planes) {
+            if (p.getId().equals(id)) {
+                return p;
+            }
+        }
+        return null;
     }
 
-    @Override
     public ArrayList<Plane> getAll() {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        return new ArrayList<>(planes);
     }
 
 }
