@@ -1,7 +1,11 @@
 package core.storage;
 
 import core.model.Location;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 public class StorageLocations implements Storage<Location, String> {
 
@@ -10,6 +14,7 @@ public class StorageLocations implements Storage<Location, String> {
 
     private StorageLocations() {
         this.locations = new ArrayList<>();
+        this.load();
     }
 
     public static StorageLocations getInstance() {
@@ -21,7 +26,24 @@ public class StorageLocations implements Storage<Location, String> {
 
     @Override
     public void load() {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        try {
+            String content = new String(Files.readAllBytes(Paths.get("./json/locations.json")));
+            JSONArray locationsData = new JSONArray(content);
+            for (int i = 0; i < locationsData.length(); i++) {
+                JSONObject obj = locationsData.getJSONObject(i);
+
+                Location location = new Location(
+                        obj.getString("airportId"),
+                        obj.getString("airportName"),
+                        obj.getString("airportCity"),
+                        obj.getString("airportCountry"),
+                        obj.getDouble("airportLatitude"),
+                        obj.getDouble("airportLongitude")
+                );
+
+                locations.add(location);
+            }
+        } catch (Exception e) { }
     }
 
     @Override

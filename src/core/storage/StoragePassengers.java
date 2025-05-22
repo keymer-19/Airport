@@ -1,7 +1,12 @@
 package core.storage;
 
 import core.model.Passenger;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.time.LocalDate;
 import java.util.ArrayList;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 public class StoragePassengers implements Storage<Passenger, Long> {
 
@@ -10,6 +15,7 @@ public class StoragePassengers implements Storage<Passenger, Long> {
 
     private StoragePassengers() {
         this.passengers = new ArrayList<>();
+        this.load();
     }
 
     public static StoragePassengers getInstance() {
@@ -18,10 +24,28 @@ public class StoragePassengers implements Storage<Passenger, Long> {
         }
         return instance;
     }
-    
+
     @Override
     public void load() {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        try {
+            String content = new String(Files.readAllBytes(Paths.get("./json/passengers.json")));
+            JSONArray passengerData = new JSONArray(content);
+            for (int i = 0; i < passengerData.length(); i++) {
+                JSONObject obj = passengerData.getJSONObject(i);
+
+                Passenger passenger = new Passenger(
+                        obj.getLong("id"),
+                        obj.getString("firstname"),
+                        obj.getString("lastname"),
+                        LocalDate.parse(obj.getString("birthDate")),
+                        obj.getInt("countryPhoneCode"),
+                        obj.getLong("phone"),
+                        obj.getString("country")
+                );
+
+                passengers.add(passenger);
+            }
+        } catch (Exception e) { }
     }
 
     @Override

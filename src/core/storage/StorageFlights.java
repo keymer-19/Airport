@@ -1,7 +1,14 @@
 package core.storage;
 
 import core.model.Flight;
+import core.model.Location;
+import core.model.Plane;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 public class StorageFlights implements Storage<Flight, String> {
 
@@ -10,6 +17,7 @@ public class StorageFlights implements Storage<Flight, String> {
 
     private StorageFlights() {
         this.flights = new ArrayList<>();
+        this.load();
     }
 
     public static StorageFlights getInstance() {
@@ -21,7 +29,40 @@ public class StorageFlights implements Storage<Flight, String> {
 
     @Override
     public void load() {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        try {
+            String content = new String(Files.readAllBytes(Paths.get("./json/flights.json")));
+            JSONArray flightsData = new JSONArray(content);
+            for (int i = 0; i < flightsData.length(); i++) {
+                JSONObject obj = flightsData.getJSONObject(i);
+
+                StoragePlanes storagePlanes = StoragePlanes.getInstance();
+                StorageLocations storageLocations = StorageLocations.getInstance();
+                
+                Plane plane = storagePlanes.get(obj.getString("plane"));
+                Location departure = storageLocations.get(obj.getString("departureLocation"));
+                Location arrival = storageLocations.get(obj.getString("arrivalLocation"));
+
+                Location scale = null;
+                if (!obj.isNull("scaleLocation")) {
+                    scale = storageLocations.get(obj.getString("scaleLocation"));
+                }
+
+                Flight flight = new Flight(
+                        obj.getString("id"),
+                        plane,
+                        departure,
+                        scale,
+                        arrival,
+                        LocalDateTime.parse(obj.getString("departureDate")),
+                        obj.getInt("hoursDurationArrival"),
+                        obj.getInt("minutesDurationArrival"),
+                        obj.getInt("hoursDurationScale"),
+                        obj.getInt("minutesDurationScale")
+                );
+
+                flights.add(flight);
+            }
+        } catch (Exception e) { }
     }
 
     @Override

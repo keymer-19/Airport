@@ -1,7 +1,11 @@
 package core.storage;
 
 import core.model.Plane;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 public class StoragePlanes implements Storage<Plane, String> {
 
@@ -10,6 +14,7 @@ public class StoragePlanes implements Storage<Plane, String> {
 
     private StoragePlanes() {
         this.planes = new ArrayList<>();
+        this.load();
     }
 
     public static StoragePlanes getInstance() {
@@ -21,7 +26,23 @@ public class StoragePlanes implements Storage<Plane, String> {
 
     @Override
     public void load() {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+         try {
+            String content = new String(Files.readAllBytes(Paths.get("./json/planes.json")));
+            JSONArray planesData = new JSONArray(content);
+            for (int i = 0; i < planesData.length(); i++) {
+                JSONObject obj = planesData.getJSONObject(i);
+
+                Plane plane = new Plane(
+                        obj.getString("id"),
+                        obj.getString("brand"),
+                        obj.getString("model"),
+                        obj.getInt("maxCapacity"),
+                        obj.getString("airline")
+                );
+
+                planes.add(plane);
+            }
+        } catch (Exception e) { }
     }
 
     public boolean add(Plane plane) {
