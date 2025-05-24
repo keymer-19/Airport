@@ -21,7 +21,7 @@ public class ControllerFlights {
         }
 
         Pattern pattern = Pattern.compile("^[A-Z]{3}\\d{3}$");
-        if (!pattern.matcher(idAvion).find()) {
+        if (!pattern.matcher(codigoVuelo).find()) {
             return new Response("El código del vuelo debe seguir el formato ABC123.", Status.BAD_REQUEST);
         }
 
@@ -111,7 +111,31 @@ public class ControllerFlights {
         }
     }
 
-    public static Response delayFlight() {
-        return new Response("Not implemented.", Status.NOT_IMPLEMENTED);
+    public static Response delayFlight(String id, String textohoras, String textominutos) {
+          if (id.trim().isEmpty()) {
+            return new Response("Código de vuelo inválido.", Status.BAD_REQUEST);
+        }
+
+        Flight flight = StorageFlights.getInstance().get(id.trim());
+        if (flight == null) {
+            return new Response("Vuelo no encoontrado.", Status.NOT_FOUND);
+        }
+
+        int hours, minutes;
+        try {
+            hours = Integer.parseInt(textohoras);
+            minutes = Integer.parseInt(textominutos);
+            
+            if (hours + minutes <= 0) {
+            return new Response("Tiempo de retraso inválido.", Status.BAD_REQUEST);
+        }
+
+        flight.delay(hours, minutes);
+        return new Response("Vuelo retrasado correctamente.", Status.OK);
+        } catch (Exception e) {
+            return new Response("El tiempo de retraso debe ser un numero.", Status.BAD_REQUEST);
+        }
+
+        
     }
 }
